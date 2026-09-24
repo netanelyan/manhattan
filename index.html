@@ -3,13 +3,77 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Manhattan - The whole chip, in a browser tab</title>
-<meta name="description" content="Manhattan is a chip-layout viewer that streams a tile pyramid to a Rust/WebAssembly WebGL2 renderer: 349 million placements at the chip view from a single tile fetch, and every view is a link.">
-<meta property="og:title" content="Manhattan - The whole chip, in a browser tab">
-<meta property="og:description" content="A chip-layout viewer that streams hundreds of millions of placements to a 20 KB Rust/WASM renderer.">
-<meta property="og:image" content="img/viewer-gcd.webp">
+<title>Manhattan - Browser Chip Layout Viewer | WebGL2 + Rust/WASM</title>
+<meta name="description" content="Manhattan is a browser-based chip layout viewer for LEF/DEF designs. A Rust/WASM WebGL2 core streams a tile pyramid: 349M placements from one tile fetch.">
+<link rel="canonical" href="https://netanelyan.github.io/manhattan/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="author" content="Yanchevsky">
 <meta name="theme-color" content="#0a0c0b">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0c0b'/%3E%3Crect x='6' y='6' width='9' height='20' fill='%239fd49f'/%3E%3Crect x='17' y='6' width='9' height='9' fill='%235785bd'/%3E%3Crect x='17' y='17' width='9' height='9' fill='%23d15742'/%3E%3C/svg%3E">
+<meta name="color-scheme" content="dark">
+
+<!-- Open Graph (LinkedIn, Slack, Discord, WhatsApp, Facebook) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Manhattan">
+<meta property="og:url" content="https://netanelyan.github.io/manhattan/">
+<meta property="og:title" content="Manhattan - The whole chip, in a browser tab">
+<meta property="og:description" content="A chip layout viewer that streams hundreds of millions of placements to a 20 KB Rust/WASM WebGL2 core. Every view is a shareable link.">
+<meta property="og:image" content="https://netanelyan.github.io/manhattan/og-image.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Manhattan: the whole chip, in a browser tab. 349M placements from one tile fetch, 2.4 s from LEF/DEF to view, a 20 KB Rust core. Beside it, a real render of routed sky130 cells.">
+<meta property="og:locale" content="en_US">
+
+<!-- X / Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Manhattan - The whole chip, in a browser tab">
+<meta name="twitter:description" content="A chip layout viewer that streams hundreds of millions of placements to a 20 KB Rust/WASM WebGL2 core.">
+<meta name="twitter:image" content="https://netanelyan.github.io/manhattan/og-image.png">
+<meta name="twitter:image:alt" content="Manhattan share card with headline numbers and a real render of routed sky130 cells.">
+
+<!-- Icons -->
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://netanelyan.github.io/manhattan/#website",
+      "url": "https://netanelyan.github.io/manhattan/",
+      "name": "Manhattan",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://netanelyan.github.io/manhattan/#software",
+      "name": "Manhattan",
+      "url": "https://netanelyan.github.io/manhattan/",
+      "description": "A browser-based chip layout viewer for LEF/DEF designs. It streams a binary tile pyramid to a Rust/WebAssembly core that drives WebGL2, so hundreds of millions of placements can be viewed without loading the design.",
+      "applicationCategory": "DeveloperApplication",
+      "applicationSubCategory": "EDA / chip layout visualization",
+      "operatingSystem": "Any (web browser with WebGL2)",
+      "programmingLanguage": ["Rust", "JavaScript"],
+      "image": "https://netanelyan.github.io/manhattan/og-image.png",
+      "screenshot": "https://netanelyan.github.io/manhattan/img/viewer-gcd.webp",
+      "featureList": [
+        "Tile pyramid with three levels of detail: density, cell outlines, full cell geometry",
+        "Block instancing: 349 million placements drawn from one tile fetch",
+        "LEF/DEF import, including routing",
+        "Rust/WASM WebGL2 core, 0 dependencies",
+        "Shareable views: the URL is the camera, layers and selection"
+      ],
+      "copyrightHolder": { "@type": "Person", "name": "Yanchevsky" },
+      "copyrightYear": 2026
+    }
+  ]
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -58,7 +122,7 @@
         <span class="lights"><i></i><i></i><i></i></span>
         <span class="addr">localhost:8080/src/?data=data-gcd-routed&amp;view=150000,150000,0.0055</span>
       </div>
-      <img src="img/viewer-gcd.webp" width="1600" height="1000"
+      <img src="img/viewer-gcd.webp" width="1600" height="1000" fetchpriority="high"
            alt="The Manhattan viewer showing the routed sky130 gcd design: rows of standard cells in blue, metal2 routing in orange, metal3 in purple, with the layer panel open on the right.">
       <figcaption>Captured from the real viewer: OpenROAD's routed sky130 <code>gcd</code>, with real placement and real routing on metal1-3.</figcaption>
     </figure>
