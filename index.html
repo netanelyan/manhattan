@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manhattan - Chip layout in a browser tab</title>
+<meta name="description" content="Manhattan streams chip layouts of billions of placements to a WebGL2 viewer as a tile pyramid. Pan from the whole die to the rectangles inside one cell, and share the exact view as a link.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b0d0c'/%3E%3Crect x='6' y='6' width='9' height='20' fill='%239fd49f'/%3E%3Crect x='17' y='6' width='9' height='9' fill='%235785bd'/%3E%3Crect x='17' y='17' width='9' height='9' fill='%23d15742'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top" aria-label="Manhattan home">
+      <span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      Manhattan
+    </a>
+    <nav class="links" aria-label="Sections">
+      <a href="#problem">Problem</a>
+      <a href="#how">How it works</a>
+      <a href="#numbers">Numbers</a>
+      <a href="#real-data">Real data</a>
+      <a href="#roadmap">Roadmap</a>
+    </nav>
+    <a class="btn btn-sm" href="#access">Code access</a>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- Hero -->
+<section class="hero">
+  <canvas id="chip" aria-hidden="true"></canvas>
+  <div class="hero-shade" aria-hidden="true"></div>
+  <div class="wrap hero-in">
+    <p class="eyebrow">A project by Natanel Yanchevsky · WebGL2 · chip layout</p>
+    <h1>Open a whole chip<br>in a browser tab.</h1>
+    <p class="lede">
+      Manhattan streams layouts of billions of placements to your GPU as a tile pyramid.
+      Zoom from the full die down to the rectangles inside a single cell,
+      then paste the link into a review and your colleague lands on the same rectangle.
+    </p>
+    <div class="cta">
+      <a class="btn" href="#how">See how it works</a>
+      <a class="btn btn-ghost" href="#access">Request code access →</a>
+    </div>
+  </div>
+  <div class="hud" aria-hidden="true">
+    <div><span class="k">level</span> <b id="hud-level">far</b> <span id="hud-rep">density blocks</span></div>
+    <div><span class="k">rects</span> <b id="hud-rects">0</b> <span class="k">scale</span> <b id="hud-scale">-</b></div>
+    <div class="k small">illustrative render · the real viewer is WebGL2</div>
+  </div>
+</section>
+
+<!-- Proof strip -->
+<section class="strip" aria-label="Headline numbers">
+  <div class="wrap strip-in">
+    <div><b>3.5B</b><span>placements at chip level, tested</span></div>
+    <div><b>~2M</b><span>rectangles per frame at 60 fps</span></div>
+    <div><b>8</b><span>draw calls inside a block</span></div>
+    <div><b>0</b><span>bytes parsed at runtime</span></div>
+  </div>
+</section>
+
+<!-- Problem -->
+<section id="problem" class="section">
+  <div class="wrap two">
+    <div>
+      <p class="eyebrow">The problem</p>
+      <h2>The layout doesn’t fit on the GPU. It never will.</h2>
+    </div>
+    <div class="prose">
+      <p>
+        A modern block holds tens of millions of cell placements, and a chip places that block
+        dozens of times. A GPU can draw about <strong>two million rectangles at 60 fps</strong>.
+        That was measured on an RTX 4060 at 3440×1440, and every design decision here follows from it.
+      </p>
+      <p>
+        Desktop tools handle this by loading the design into memory. The status bar of the signoff
+        tool our target users keep open was seen reading <code>Mem: 9.0GB</code>, and those users
+        report slow load times.
+      </p>
+      <p>
+        Manhattan streams tiles against a <strong>64 MB cache</strong> instead. The design is never handed to the renderer
+        whole. It only needs to draw what is on screen, at the detail the screen can actually show.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- How -->
+<section id="how" class="section alt">
+  <div class="wrap">
+    <p class="eyebrow">How it works</p>
+    <h2>One invariant: everything is an axis-aligned rectangle.</h2>
+    <p class="sub">
+      Digital layout is Manhattan geometry. That lets the whole pipeline be built around
+      rectangles, from the tile format to the shaders.
+    </p>
+
+    <div class="reps">
+      <article class="rep">
+        <svg viewBox="0 0 120 80" aria-hidden="true" class="rep-art">
+          <g id="far-art"></g>
+        </svg>
+        <p class="tag">far</p>
+        <h3>Density blocks</h3>
+        <p>The whole die at once. Placements merge into density blocks, drawn with the macros and the power grid. At the chip view that is one tile fetched and 70 draws.</p>
+      </article>
+      <article class="rep">
+        <svg viewBox="0 0 120 80" aria-hidden="true" class="rep-art">
+          <g id="mid-art"></g>
+        </svg>
+        <p class="tag">mid</p>
+        <h3>One outline per cell</h3>
+        <p>Each placement is one rectangle in one draw call. Mid geometry stops being drawn at 1.5 px per cell, before it turns into noise.</p>
+      </article>
+      <article class="rep">
+        <svg viewBox="0 0 120 80" aria-hidden="true" class="rep-art">
+          <g id="deep-art"></g>
+        </svg>
+        <p class="tag">deep</p>
+        <h3>Full cell internals</h3>
+        <p>Poly, contacts, metal and pins. Draws are grouped by rect-count bucket instead of by master, so a library of 4,634 masters costs 8 draw calls rather than about 4,400.</p>
+      </article>
+    </div>
+
+    <div class="grid3">
+      <div class="feat">
+        <h3>Parses nothing at runtime</h3>
+        <p>Tiles are binary, laid out so the viewer takes typed-array views straight over the bytes. The data goes from fetch to GPU buffer with no parse step.</p>
+      </div>
+      <div class="feat">
+        <h3>LOD solved per design</h3>
+        <p>Switch points come from each design’s tile costs and your canvas size, not from constants. A 1.3× hysteresis band stops the level flickering when you stop on a boundary.</p>
+      </div>
+      <div class="feat">
+        <h3>Block instancing</h3>
+        <p>A block is tiled once, and the chip is a list of transforms over it. 70 instances of a 5M-placement block take 117 MB, where flattening them would take about 8.2 GB.</p>
+      </div>
+      <div class="feat">
+        <h3>Lazy deep tiles</h3>
+        <p>Deep levels are 96% of the pyramid, and a session opens only a few hundred of their tiles. They are built on request from a placement index in 0.22 ms at p50.</p>
+      </div>
+      <div class="feat">
+        <h3>Click to identify</h3>
+        <p>The tile itself is the spatial index, so there is no second structure to keep in sync. Click a cell to see what it is, or press <kbd>g</kbd> to jump to a coordinate.</p>
+      </div>
+      <div class="feat">
+        <h3>A layer panel you’ll recognise</h3>
+        <p>Grouped rows with separate visible and selectable columns, based on the panel in the signoff tool users already know. Process layers and instance categories share one list.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Share -->
+<section id="share" class="section">
+  <div class="wrap two">
+    <div>
+      <p class="eyebrow">Shareable views</p>
+      <h2>The URL is the view.</h2>
+      <p class="prose">
+        A desktop layout viewer can’t do this: paste a link into a design review
+        and have the other person land on the same rectangle, with the same layers and the same selection.
+        The URL updates as you move around, but it doesn’t fill your back button with every pan.
+      </p>
+    </div>
+    <div class="url-card">
+      <div class="url" id="url">
+        <span class="u-host">localhost:8080/src/?</span><span class="u-p" data-i="0">data=data-sb16</span>&amp;<span class="u-p" data-i="1">view=812400,640250,0.018</span>&amp;<span class="u-p" data-i="2">mask=0x1f4</span>&amp;<span class="u-p" data-i="3">pick=812533,640190</span>
+      </div>
+      <ul class="url-legend">
+        <li data-i="0"><code>data</code> which design on the server</li>
+        <li data-i="1"><code>view</code> camera centre in nm, and pixels per nm</li>
+        <li data-i="2"><code>mask</code> which layers are visible</li>
+        <li data-i="3"><code>pick</code> the selected placement, so “come look at this” means <em>this</em></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Numbers -->
+<section id="numbers" class="section alt">
+  <div class="wrap">
+    <p class="eyebrow">Measured, not estimated</p>
+    <h2>The numbers</h2>
+    <p class="sub">Every figure below was measured in the repo. Figures that are extrapolations say so there.</p>
+    <div class="stats">
+      <div class="stat"><b>1,531,094</b><span>rectangles in the worst frame anywhere in the zoom range, 77% of the 2M budget</span></div>
+      <div class="stat"><b>349M</b><span>placements at chip level in the 117 MB the block already costs</span></div>
+      <div class="stat"><b>62 s → 15 s</b><span>time to generate a 50M-placement design with lazy tiles</span></div>
+      <div class="stat"><b>1,185 → 233 MB</b><span>on disk for the same design</span></div>
+      <div class="stat"><b>0.2%</b><span>bucket padding on real data, with caps derived from the design’s own histogram</span></div>
+      <div class="stat"><b>4,068 / 4,068</b><span>tiles built on request that are byte-identical to the written ones</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Real data -->
+<section id="real-data" class="section">
+  <div class="wrap">
+    <p class="eyebrow">Real designs, not only a generator</p>
+    <h2>Tested on real designs, including the parts that broke</h2>
+    <p class="sub">
+      A format built to fit its own generator will always look fine on that generator.
+      So Manhattan also reads real LEF/DEF files. Two public designs have been through it so far,
+      and the problems they exposed are written down next to the results.
+    </p>
+    <div class="tables">
+      <div class="tcard">
+        <h3>ISPD 2015 · <code>mgc_superblue16_a</code></h3>
+        <table>
+          <tr><th>components</th><td>680,869</td></tr>
+          <tr><th>macros in the library</th><td>4,634</td></tr>
+          <tr><th>parse + place + tile</th><td>2.4 s for 80.3 MB</td></tr>
+          <tr><th>on disk</th><td>15.9 MB</td></tr>
+          <tr><th>power grid</th><td>544,478 rects, 99.7% vias</td></tr>
+        </table>
+      </div>
+      <div class="tcard">
+        <h3>OpenROAD sky130 · routed <code>gcd</code></h3>
+        <table>
+          <tr><th>placed components</th><td>8,171</td></tr>
+          <tr><th>routed nets</th><td>411</td></tr>
+          <tr><th>routing rects</th><td>15,424 in 419 shapes</td></tr>
+          <tr><th>format changes needed</th><td>none, not a byte moved</td></tr>
+          <tr><th>gates</th><td><code>verify</code> and <code>check</code> pass</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="callout">
+      <b>What real data changed:</b> a 17-layer process stack against 12 layer ids (34% of the library’s rects
+      ended up on metal3), a power grid that isn’t made of cell placements at all, and cells whose
+      geometry extends past their <code>SIZE</code> box. These are listed as known gaps, not left out.
+    </div>
+  </div>
+</section>
+
+<!-- Gates -->
+<section class="section alt">
+  <div class="wrap two">
+    <div>
+      <p class="eyebrow">Two gates</p>
+      <h2>An empty frame fails the build.</h2>
+    </div>
+    <div class="prose">
+      <p>
+        <code>make verify</code> reads every binary back and checks each invariant of the format.
+        <code>make check</code> then runs the real viewer in headless Chrome and visits every point where geometry
+        provably exists, at every level. If the screen is empty where geometry exists, the check fails.
+      </p>
+      <p>
+        Tiles built on request must be <strong>byte-identical</strong> to written ones.
+        That check once caught a 200 nm offset that passed every other test, because 200 nm is smaller than a pixel.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Roadmap -->
+<section id="roadmap" class="section">
+  <div class="wrap">
+    <p class="eyebrow">Where it’s going</p>
+    <h2>Roadmap</h2>
+    <ol class="road">
+      <li><span class="st done">done</span><div><b>End-to-end pipeline</b><p>Generator, three-representation pyramid, lazy tiles, WebGL2 viewer, layer panel, shareable URLs, and both gates.</p></div></li>
+      <li><span class="st done">done</span><div><b>Real LEF/DEF import</b><p>superblue16 and routed sky130 gcd, from the CLI or by dropping files into the browser.</p></div></li>
+      <li><span class="st next">next</span><div><b>A wider layer id space</b><p>Room for a real 17-layer stack, so a macro shows its pins on metal5 instead of rendering as one solid slab.</p></div></li>
+      <li><span class="st next">next</span><div><b>Routing as wires, not placements</b><p>A fourth <code>wire</code> tile kind and a net table, so power grids and signal routes are stored as what they are.</p></div></li>
+      <li><span class="st later">later</span><div><b>Names and search</b><p>Instance names as a side table (7.23 MB on superblue16), so you can search for a cell and jump to it.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- Access -->
+<section id="access" class="section alt">
+  <div class="wrap two">
+    <div>
+      <p class="eyebrow">The code</p>
+      <h2>Private source. Access on request.</h2>
+      <p class="prose">
+        The implementation lives in a private repository. The write-ups, measurements and design decisions
+        are public here and in the showcase repo. If you’re reviewing this work, for hiring or for a
+        collaboration, ask and I’ll give you read access to the full source and its history.
+      </p>
+    </div>
+    <div class="tcard">
+      <h3>What’s where</h3>
+      <table>
+        <tr><th>this site and the showcase repo</th><td>public</td></tr>
+        <tr><th>architecture, numbers, roadmap</th><td>public</td></tr>
+        <tr><th>viewer, tile format, generator, importer</th><td>on request</td></tr>
+        <tr><th>verify and check gates, benchmarks</th><td>on request</td></tr>
+      </table>
+      <div class="cta">
+        <a class="btn" href="https://github.com/netanelyan/manhattan/issues/new?title=Code%20access%20request&amp;body=Who%20I%20am%20and%20why%20I%27d%20like%20to%20see%20the%20source%3A%0A">Request code access</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="final">
+  <div class="wrap final-in">
+    <h2>Stop waiting for layouts to load.</h2>
+    <p>Manhattan is designed, built and measured by Natanel Yanchevsky. If this is the kind of problem you work on, let’s talk.</p>
+    <div class="cta">
+      <a class="btn" href="https://github.com/netanelyan/manhattan/issues/new?title=Code%20access%20request&amp;body=Who%20I%20am%20and%20why%20I%27d%20like%20to%20see%20the%20source%3A%0A">Request code access</a>
+      <a class="btn btn-ghost" href="https://github.com/netanelyan">More of my work →</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <span class="brand small"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>Manhattan</span>
+    <span>© 2026 Natanel Yanchevsky. All rights reserved.</span>
+    <a href="https://github.com/netanelyan/manhattan">github.com/netanelyan/manhattan</a>
+  </div>
+</footer>
+
+<script src="main.js" type="module"></script>
+</body>
+</html>
