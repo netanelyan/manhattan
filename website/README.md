@@ -17,4 +17,4 @@ It needs a server because `main.js` is an ES module, which browsers won't load f
 
 Every number on the page comes from the private Manhattan repo's measurements.
 
-© 2026 Natanel Yanchevsky. All rights reserved. See [../LICENSE](../LICENSE).
+© 2026 Yanchevsky. All rights reserved. See [../LICENSE](../LICENSE).

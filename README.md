@@ -56,4 +56,4 @@ the bytes. **Nothing is parsed at runtime.**
 
 ---
 
-© 2026 Natanel Yanchevsky. All rights reserved.
+© 2026 Yanchevsky. All rights reserved.
