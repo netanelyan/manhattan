@@ -12,9 +12,9 @@ It needs a server because `main.js` is an ES module, which browsers won't load f
 |---|---|
 | `index.html` | the page |
 | `styles.css` | styles; colours follow the viewer's own palette |
-| `main.js` | hero animation (a procedural die zooming through far / mid / deep), card art, small interactions |
+| `main.js` | the zoom walkthrough, the URL anatomy card, scroll reveals |
+| `img/` | captures of the real viewer, rendered headless (SwiftShader) from the private repo's designs |
 
-`?t=<seconds>` freezes the hero animation at that point in its tour, for screenshots.
 Every number on the page comes from the private Manhattan repo's measurements.
 
 © 2026 Natanel Yanchevsky. All rights reserved. See [../LICENSE](../LICENSE).
