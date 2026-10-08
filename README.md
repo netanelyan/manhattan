@@ -52,6 +52,7 @@ the bytes. **Nothing is parsed at runtime.**
 | path | what |
 |---|---|
 | [`website/`](website/) | the project site, static HTML/CSS/JS with no build step. Deployed from the `website` branch to https://netanelyan.github.io/manhattan/ |
+| [`manhattan-brand-assets/`](manhattan-brand-assets/) | the logo, chip mark, wordmark and icons, in SVG, PDF and PNG; see its `README.txt` |
 | [`tools/`](tools/) | sources for the site's share card and icons |
 | [`LICENSE`](LICENSE) | all rights reserved; view-only |
 
