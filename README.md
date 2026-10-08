@@ -19,7 +19,7 @@ It needs a server because `main.js` is an ES module, which browsers won't load f
 | `sitemap.xml` | submit in Google Search Console; a `robots.txt` would be ignored under `/manhattan/` |
 | `404.html` | GitHub Pages' not-found page; uses absolute `/manhattan/` paths |
 
-Regenerate the share card and icons with `sh tools/build-seo-assets.sh` from the repo root (Chrome and Python with Pillow).
+Regenerate the share card and icons with `sh tools/build-seo-assets.sh` from the repo root (needs Chrome). The icons come from `manhattan-brand-assets/icon/` on `main`.
 
 Every number on the page comes from the private Manhattan repo's measurements.
 
